@@ -31,33 +31,5 @@ const GetEndRound = async () => {
     })
 }
 
-const GetRoundData = async (round) => {
-    try {
-        const data = await contract.rounds(round);
-        const closePrice = data.closePrice;
-        const lockPrice = data.lockPrice;
-        const bullAmount = data.bullAmount;
-        const bearAmount = data.bearAmount;
-        const totalAmount = new Big(data.totalAmount);
-        const bullPayout = totalAmount.div(bullAmount).round(3).toString();
-        const bearPayout = totalAmount.div(bearAmount).round(3).toString();
 
-        const parsedRound = [
-            {
-                round: round.toString(),
-                openPrice: utils.formatUnits(data.lockPrice, "8"),
-                closePrice: utils.formatUnits(data.closePrice, "8"),
-                bullAmount: utils.formatUnits(data.bullAmount, "18"),
-                bearAmount: utils.formatUnits(data.bearAmount, "18"),
-                bullPayout: bullPayout,
-                bearPayout: bearPayout,
-                winner: closePrice.gt(lockPrice) ? "bull" : "bear",
-            },
-        ];
-        return parsedRound;
-    } catch (e) {
-        console.log(e);
-        return null;
-    }
-};
-
+GetRoundData("128198").then((r)=>{return r})

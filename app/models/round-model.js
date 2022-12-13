@@ -25,11 +25,11 @@ const Round = function(tutorial) {
     this.totalAmount = tutorial.totalAmount;
     this.bullAmount = tutorial.bullAmount;
     this.bearAmount = tutorial.bearAmount;
-    this.rewardBaseCalAmount = tutorial.rewardBaseCalAmount;
+    this.winner = tutorial.winner
 };
 
 Round.create = (newRound, result) => {
-    sql.query("INSERT INTO tutorials SET ?", newRound, (err, res) => {
+    sql.query("INSERT INTO Round SET ?", newRound, (err, res) => {
 
         if (err) {
             console.log("error: ", err);
@@ -41,6 +41,21 @@ Round.create = (newRound, result) => {
         result(null, { id: res.insertId, ...newRound });
     });
 };
+
+
+Round.getAllWinner = result => {
+    sql.query("SELECT * FROM tutorials WHERE winner = true", (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        console.log("tutorials: ", res);
+        result(null, res);
+    });
+};
+
 
 Round.findById = (id, result) => {
     sql.query(`SELECT * FROM tutorials WHERE id = ${id}`, (err, res) => {
@@ -80,18 +95,6 @@ Round.getAll = (title, result) => {
     });
 };
 
-Round.getAllPublished = result => {
-    sql.query("SELECT * FROM tutorials WHERE published=true", (err, res) => {
-        if (err) {
-            console.log("error: ", err);
-            result(null, err);
-            return;
-        }
-
-        console.log("tutorials: ", res);
-        result(null, res);
-    });
-};
 
 Round.updateById = (id, tutorial, result) => {
     sql.query(
