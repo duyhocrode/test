@@ -6,10 +6,9 @@ const abi = require("../../abi.json");
 urlRPC = process.env.BSC_RPC
 contractAddress = process.env.PCS_ADDRESS
 const provider = new ethers.providers.JsonRpcProvider(urlRPC)
-
+//caac
 //contract
 const contract = new ethers.Contract(contractAddress, JSON.parse(abi), provider)
-
 const getRoundData = async (round) => {
     try {
         const data = await contract.functions.rounds(round);
@@ -22,7 +21,6 @@ const getRoundData = async (round) => {
         const bearPayout = totalAmount.div(bearAmount).round(3).toString();
         const start = data.lockTimestamp;
         const close = data.closeTimestamp;
-
         const parsedRound = [
             {
                 round: round.toString(),
