@@ -1,20 +1,5 @@
 const sql = require("./db.js");
 
-// uint256 epoch;
-// uint256 start Timestamp;
-// uint256 lock Timestamp;
-// uint256 close Timestamp;
-// int256 lockPrice;
-// int256 closePrice;
-// uint256 lockOracleId;
-// uint256 closeOracleId;
-// uint256 totalAmount;
-// uint256 bullAmount;
-// uint256 bearAmount;
-// uint256 rewardBaseCalAmount;
-// uint256 rewardAmount;
-// bool oracleCalled;
-
 // constructor
 const Round = function(tutorial) {
     this.epoch = tutorial.epoch;
@@ -25,6 +10,8 @@ const Round = function(tutorial) {
     this.totalAmount = tutorial.totalAmount;
     this.bullAmount = tutorial.bullAmount;
     this.bearAmount = tutorial.bearAmount;
+    this.bullPayout = tutorial.bullPayout;
+    this.bearPayout= tutorial.bearPayout;
     this.winner = tutorial.winner
 };
 

@@ -7,5 +7,7 @@ let connection = mysql.createPool({
     password: dbConfig.PASSWORD,
     database: dbConfig.DB
 });
+//to verify healthy before start
+connection
 
 module.exports = connection;

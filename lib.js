@@ -32,4 +32,3 @@ const GetEndRound = async () => {
 }
 
 
-GetRoundData("128198").then((r)=>{return r})
