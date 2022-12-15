@@ -1,16 +1,7 @@
 const Round = require("../../models/round-model.js");
 const lib = require("../../helper/lib.js");
-const {ethers, utils} = require("ethers");
-const abi = require("../../../abi.json");
+const calculateRsi = require("../../helper/price.js");
 require("dotenv").config();
-
-
-urlRPC = process.env.BSC_RPC
-contractAddress = process.env.PCS_ADDRESS
-const provider = new ethers.providers.JsonRpcProvider(urlRPC)
-//contract
-const contract = new ethers.Contract(contractAddress, JSON.parse(abi), provider)
-
 // Create and Save a new Round
 // Validate request
 // Create a Round
@@ -29,22 +20,53 @@ const unixToTime = (unix_timestamp) => {
     return time
 }
 
-contract.on("EndRound", async (epoch, roundId, price) => {
+lib.contract.on("EndRound", onEndRound);
+
+async function onEndRound(epoch, roundId, price) {
     // Get the round data from the library
     let roundData = await lib.getRoundData(epoch);
+    let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
 
     // Create a new Round object using the round data
     let round = new Round({
-        epoch: roundData.round,
-        start: unixToTime(roundData.start),
         close: unixToTime(roundData.close),
-        lockPrice: roundData.lockPrice,
         closePrice: roundData.closePrice,
+        rsiClose: rsi.rsiValue[rsi.rsiValue.length - 1],
+        realPriceClose: rsi.closePrice,
+        winner: roundData.winner
+    });
+
+    // Save the round data using the provided update function
+    Round.update(roundData.round, round, (err, result) => {
+        if (err) {
+            console.log("Controller: update err")
+        } else {
+            console.log(`Close Round ${roundData.round} winner ${result.winner}`);
+
+            // Do something with the result of the update function
+            let message = `Round ${roundData.round} has been updated to the database. The winner was: ${result.winner ? 'bull' : 'bear'}`;
+            console.log(message);
+        }
+    });
+}
+
+
+// Watch new round
+lib.contract.on("LockRound", async (epoch, roundId, price) => {
+    let roundData = await lib.getRoundData(epoch);
+    let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
+
+    // Create a new Round object using the round data
+    let round = new Round({
+        roundId: roundData.round,
+        start: unixToTime(roundData.start),
+        lockPrice: roundData.lockPrice,
         bullAmount: roundData.bullAmount,
         bearAmount: roundData.bearAmount,
         bullPayout: roundData.bullPayout,
         bearPayout: roundData.bearPayout,
-        winner: roundData.winner == "bull" ? true : false
+        rsi: rsi.rsiValue[rsi.rsiValue.length - 1],
+        realPrice: rsi.closePrice,
     });
 
     // Save the round data using the provided create function
@@ -52,33 +74,18 @@ contract.on("EndRound", async (epoch, roundId, price) => {
         if (err) {
             console.log("Controller: create err")
         } else {
-            console.log(`Close Round ${epoch} winner ${result.winner}`);
-
             // Do something with the result of the create function
-            let message = `Round ${epoch} has been saved to the database. The winner was: ${result.winner ? 'bull' : 'bear'}`;
+            let message = `Round ${roundData.round} has been saved to the database. Waiting to result`;
             console.log(message);
         }
     });
 
-    if (round.bearPayout < 1.5) {
-        let busdPerOrder = 5
-        let leverage = 20
-        order.simulateShortOrder(busdPerOrder, leverage )
-    }
-
-    if (round.bullPayout < 1.5) {
-        let busdPerOrder = 5
-        let leverage = 20
-        order.simulateLongOrder(busdPerOrder, leverage )
-    }
-});
-
-
-
-// Watch new round
-contract.on("LockRound", async (epoch, roundId, price) => {
-    console.log("LockRound ", epoch + " " + roundId + " " + price)
+    await  onEndRound
 })
 
 
 
+
+//
+// mysql --host=localhost --user=myname --password=password mydb
+// mysql -h localhost -u myname -ppassword mydb

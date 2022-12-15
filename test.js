@@ -1,68 +1,37 @@
 const axios = require("axios");
 const API_URL = "https://fapi.binance.com/fapi/v1/klines?symbol=BNBBUSD&interval=5m&limit=100";
 
-// Calculate the RSI for the given array of closing prices
-function calculateRsi(data, period) {
-    // Initialize variables for the calculation
-    let sumGains = 0;
-    let sumLosses = 0;
-    let previousClose;
-    // Loop through the data to calculate the sum of gains and losses
-    for (let i = 0; i < data.length; i++) {
-        // Get the current close price and the previous close price
-        const currentClose = data[i][4];
-        if (previousClose) {
-            // Calculate the difference between the current and previous close prices
-            const change = currentClose - previousClose;
+// Import the technicalindicators library
+const technicalindicators = require('technicalindicators');
 
-            // Update the sum of gains or losses based on the change
-            if (change > 0) {
-                sumGains += change;
-            } else {
-                sumLosses -= change;
-            }
-        }
+// Define the function that calculates the RSI value
+async function calculateRsi(symbol, interval, limit, rsiPeriod) {
+    // Construct the API endpoint URL
+    const url = `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`;
 
-        // Set the previous close price for the next iteration
-        previousClose = currentClose;
-    }
+    try {
+        // Make a GET request to the API endpoint using axios
+        const response = await axios.get(url);
 
-    // Calculate the average gain and loss over the specified period
-    const averageGain = sumGains / period;
-    const averageLoss = sumLosses / period;
+        // Parse the response body to extract the closing prices
+        const data = response.data;
+        const closingPrices = data.map(datapoint => datapoint[4]);
 
-    // Calculate the relative strength
-    const relativeStrength = averageGain / averageLoss;
-
-    // Calculate and return the RSI
-    return 100 - (100 / (1 + relativeStrength));
-}
-
-
-function getDataAndCalculateRsi() {
-    // Use axios to request data from the API
-    axios.get(API_URL, {
-        params: {
-            symbol: 'BNBBUSD',
-            interval: '5m',
-            limit: 100
-        }
-    })
-        .then(response => {
-            // Extract the necessary data from the response
-            const data = response.data;
-
-            // Calculate RSI with a period of 14
-            const rsi = calculateRsi(data, 14);
-
-            // Do something with the calculated RSI value
-            console.log(rsi);
-        })
-        .catch(error => {
-            // Handle any errors
-            console.error(error);
+        // Calculate the RSI value using technicalindicators
+        const rsi = new technicalindicators.RSI({
+            values : closingPrices,
+            period : rsiPeriod
         });
+        const rsiValues = rsi.getResult();
+        console.log(rsiValues)
+        // Return the RSI value
+        return rsiValues;
+    } catch (error) {
+        // Handle the error
+        console.error(error);
+    }
 }
 
-// Call the getDataAndCalculateRsi function every 5 seconds
-setInterval(getDataAndCalculateRsi, 5000);
+setInterval(() => calculateRsi('BNBBUSD', '5m', 27, 14), 1000);
+
+

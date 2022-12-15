@@ -2,7 +2,7 @@
 const Order = require("../../models/order.model.js")
 const getPrice = require("../../helper/price.js")
 
-function simulateShortOrder(limitPrice, busdPerOrder, leverage) {
+function simulateShortOrder(busdPerOrder, leverage) {
     // Create date instance
     let currentTime = new Date();
 
@@ -24,9 +24,9 @@ function simulateShortOrder(limitPrice, busdPerOrder, leverage) {
             this.status = false,
             this.start = currentTime.getFullYear() + "-" + (currentTime.getMonth() + 1) + "-" + currentTime.getDate() + " " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds(),
         )
-        // Submit the order
+        // Submit the order to mysql
         Order.create(order);
     }
-
-
 }
+
+
