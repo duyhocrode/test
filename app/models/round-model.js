@@ -65,12 +65,12 @@ Round.getAll = result => {
     });
 };
 
-Round.paginate = (page, size, result) => {
+Round.paginate = (page, size, sort, result) => {
     let limit = size;
     let offset = (page - 1) * size;
 
     sql.query(
-        `SELECT * FROM round LIMIT ${limit} OFFSET ${offset}`,
+        `SELECT * FROM round ORDER BY ${sort} LIMIT ${limit} OFFSET ${offset}`,
         (err, res) => {
             if (err) {
                 console.log("error: ", err);
@@ -83,6 +83,26 @@ Round.paginate = (page, size, result) => {
         }
     );
 };
+
+Round.delete = (id, result) => {
+    sql.query("DELETE FROM round WHERE roundid = ?", id, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+
+        if (res.affectedRows == 0) {
+            // not found Round with the id
+            result({ kind: "not_found" }, null);
+            return;
+        }
+
+        console.log("deleted round with id: ", id);
+        result(null, res);
+    });
+};
+
 
 
 
