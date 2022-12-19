@@ -12,7 +12,7 @@ const Order = function(order) {
 };
 
 Order.create = (order, result) => {
-    sql.query("INSERT INTO Round SET ?", order, (err, res) => {
+    sql.query("INSERT INTO round SET ?", order, (err, res) => {
 
         if (err) {
             console.log("error: ", err);

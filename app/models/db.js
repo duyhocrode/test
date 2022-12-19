@@ -1,13 +1,12 @@
 const mysql = require("mysql");
-const dbConfig = require("../config/db.config.js");
+require('dotenv').config();
+
 
 let connection = mysql.createPool({
-    host: dbConfig.host.HOST,
-    user: dbConfig.host.USER,
-    password: dbConfig.host.PASSWORD,
-    database: dbConfig.host.DB
+    host: process.env.HOST_DB,
+    user: process.env.USER_DB,
+    password: process.env.PASSWORD_DB,
+    database: process.env.DB
 });
-//to verify healthy before start
-connection
 
 module.exports = connection;

@@ -2,10 +2,10 @@ const Round = require("../../models/round-model.js");
 const lib = require("../../helper/lib.js");
 const calculateRsi = require("../../helper/price.js");
 require("dotenv").config();
-// Create and Save a new Round
+// Create and Save a new round
 // Validate request
-// Create a Round
-// Save Round in the database
+// Create a round
+// Save round in the database
 
 const unixToTime = (unix_timestamp) => {
 // multiplied by 1000 so that the argument is in milliseconds, not seconds.
@@ -27,7 +27,7 @@ async function onEndRound(epoch, roundId, price) {
     let roundData = await lib.getRoundData(epoch);
     let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
 
-    // Create a new Round object using the round data
+    // Create a new round object using the round data
     let round = new Round({
         close: unixToTime(roundData.close),
         closePrice: roundData.closePrice,
@@ -56,7 +56,7 @@ lib.contract.on("LockRound", async (epoch, roundId, price) => {
     let roundData = await lib.getRoundData(epoch);
     let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
 
-    // Create a new Round object using the round data
+    // Create a new round object using the round data
     let round = new Round({
         roundId: roundData.round,
         start: unixToTime(roundData.start),

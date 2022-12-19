@@ -19,7 +19,7 @@ const Round = function(tutorial) {
 };
 
 Round.create = (newRound, result) => {
-    sql.query("INSERT INTO Round SET ?", newRound, (err, res) => {
+    sql.query("INSERT INTO round SET ?", newRound, (err, res) => {
 
         if (err) {
             console.log("error: ", err);
@@ -33,7 +33,7 @@ Round.create = (newRound, result) => {
 };
 
 Round.update = (id, updatedRound, result) => {
-    sql.query("UPDATE Round SET close = ?, closePrice = ?, rsiClose = ?, realPriceClose = ?, winner = ? WHERE roundid = ?",
+    sql.query("UPDATE round SET close = ?, closePrice = ?, rsiClose = ?, realPriceClose = ?, winner = ? WHERE roundid = ?",
         [updatedRound.close, updatedRound.closePrice, updatedRound.rsiClose, updatedRound.realPriceClose, updatedRound.winner, id],
         (err, res) => {
             if (err) {
@@ -43,7 +43,7 @@ Round.update = (id, updatedRound, result) => {
             }
 
             if (res.affectedRows == 0) {
-                // not found Round with the id
+                // not found round with the id
                 result({ kind: "not_found" }, null);
                 return;
             }
@@ -52,6 +52,39 @@ Round.update = (id, updatedRound, result) => {
             result(null, { id: id, ...updatedRound});
         });
 };
+
+
+Round.getAll = result => {
+    sql.query("SELECT * FROM round", (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(null, err);
+            return;
+        }
+        result(null, res);
+    });
+};
+
+Round.paginate = (page, size, result) => {
+    let limit = size;
+    let offset = (page - 1) * size;
+
+    sql.query(
+        `SELECT * FROM round LIMIT ${limit} OFFSET ${offset}`,
+        (err, res) => {
+            if (err) {
+                console.log("error: ", err);
+                result(null, err);
+                return;
+            }
+
+            console.log("rounds: ", res);
+            result(null, res);
+        }
+    );
+};
+
+
 
 
 module.exports = Round;
