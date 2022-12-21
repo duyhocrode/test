@@ -1,6 +1,6 @@
 const technicalindicators = require("technicalindicators");
 const axios = require("axios");
-const talib = require("talib-binding");
+
 
 // Define the function that calculates the RSI value
 async function calculateRsi(symbol, interval, limit, rsiPeriod) {
@@ -17,8 +17,8 @@ async function calculateRsi(symbol, interval, limit, rsiPeriod) {
 
         // Calculate the RSI value using technicalindicators
         const rsi = new technicalindicators.RSI({
-            values : closingPrices,
-            period : rsiPeriod
+            values: closingPrices,
+            period: rsiPeriod
         });
         const rsiValues = rsi.getResult();
         // Return the RSI value
@@ -31,6 +31,20 @@ async function calculateRsi(symbol, interval, limit, rsiPeriod) {
         console.error(error);
     }
 }
+
+
+function calculatePivotValues(highPrices, lowPrices, closingPrices, pivotLookbackRight, pivotLookbackLeft) {
+    const pivotValues = [];
+    for (let i = pivotLookbackLeft; i < closingPrices.length - pivotLookbackRight; i++) {
+        const high = Math.max(...highPrices.slice(i - pivotLookbackLeft, i + pivotLookbackRight + 1));
+        const low = Math.min(...lowPrices.slice(i - pivotLookbackLeft, i + pivotLookbackRight + 1));
+        const close = closingPrices[i];
+        const pivot = (high + low + close) / 3;
+        pivotValues.push(pivot);
+    }
+    return pivotValues;
+}
+
 
 
 async function calculateDivergenceIndicator(symbol, interval, limit, rsiPeriod, pivotLookbackRight, pivotLookbackLeft, minLookbackRange, maxLookbackRange) {
@@ -54,18 +68,7 @@ async function calculateDivergenceIndicator(symbol, interval, limit, rsiPeriod, 
         });
         const rsiValues = rsi.getResult();
 
-        const pivotInputs = {
-            high: highPrices,
-            low: lowPrices,
-            close: closingPrices,
-        };
-        const pivotResults = await talib.execute({
-            name: "PIVOTPOINT",
-            startIdx: pivotLookbackLeft,
-            endIdx: pivotLookbackRight,
-            inReal: pivotInputs,
-        });
-        const pivotValues = pivotResults.result.outReal;
+        const pivotValues = calculatePivotValues(highPrices, lowPrices, closingPrices, pivotLookbackRight, pivotLookbackLeft);
 
         // Initialize variables to track divergence
         let divergenceExists = false;
@@ -105,35 +108,14 @@ async function calculateDivergenceIndicator(symbol, interval, limit, rsiPeriod, 
             exists: divergenceExists,
             type: divergenceType
         };
-    }  catch (error) {
+    } catch (error) {
         // Handle the error
         console.error(error);
     }
 }
 
-// Define the function arguments
-const symbol = "BTCUSDT";
-const interval = "1h";
-const limit = 100;
-const rsiPeriod = 14;
-const pivotLookbackRight = 5;
-const pivotLookbackLeft = 5;
-const minLookbackRange = 60;
-const maxLookbackRange = 5;
 
-// Run the function every 1 second
-setInterval(async () => {
-    const result = await calculateDivergenceIndicator(
-        symbol,
-        interval,
-        limit,
-        rsiPeriod,
-        pivotLookbackRight,
-        pivotLookbackLeft,
-        minLookbackRange,
-        maxLookbackRange
-    );
-    console.log(result);
-}, 1000);
-
-module.exports = calculateRsi;
+module.exports = {
+    calculateRsi,
+    calculateDivergenceIndicator,
+};
