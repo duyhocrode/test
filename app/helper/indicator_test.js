@@ -1,5 +1,5 @@
 const assert = require('assert');
-const price = require('../../helper/indicator')
+const price = require('./indicator')
 
 describe('calculateRsi', () => {
     it('should return the expected RSI values for a given set of input data', () => {

@@ -1,5 +1,5 @@
 const Telebot = require('telebot');
-const price = require('../../helper/price')
+const indicator = require('../../helper/indicator')
 require('dotenv').config();
 
 async function sendAlertToTelegram(botToken, chatId, message) {
@@ -25,7 +25,7 @@ setInterval(async () => {
     // Define the function arguments
     const symbol = "BNBBUSD";
     const interval = "5m";
-    const limit = 100;
+    const limit = 60;
     const rsiPeriod = 14;
     const pivotLookbackRight = 5;
     const pivotLookbackLeft = 5;
@@ -33,7 +33,9 @@ setInterval(async () => {
     const maxLookbackRange = 5;
     const botToken = process.env.TOKEN_BOT;
     const chatId = process.env.CHAT_ID;
-    const result = await price.calculateDivergenceIndicator(symbol, interval, limit, rsiPeriod, pivotLookbackRight, pivotLookbackLeft, minLookbackRange, maxLookbackRange);
+
+    indicator.detectDivergence(symbol, interval, limit, rsiPeriod, pivotLookbackRight, pivotLookbackLeft, minLookbackRange, maxLookbackRange);
+    
     if (result && result.hasOwnProperty('exists')) {
         // Check the value of the exists property
         if (result.exists) {
