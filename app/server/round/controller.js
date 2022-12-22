@@ -1,6 +1,6 @@
 const Round = require("../../models/round-model.js");
 const lib = require("../../helper/lib.js");
-const calculateRsi = require("../../helper/price.js");
+const price = require("../../helper/indicator.js");
 require("dotenv").config();
 // Create and Save a new round
 // Validate request
@@ -25,7 +25,7 @@ lib.contract.on("EndRound", onEndRound);
 async function onEndRound(epoch, roundId, price) {
     // Get the round data from the library
     let roundData = await lib.getRoundData(epoch);
-    let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
+    let rsi = await price.calculateRsi("BNBBUSD", "5m", 30, 14)
 
     // Create a new round object using the round data
     let round = new Round({
@@ -54,7 +54,7 @@ async function onEndRound(epoch, roundId, price) {
 // Watch new round
 lib.contract.on("LockRound", async (epoch, roundId, price) => {
     let roundData = await lib.getRoundData(epoch);
-    let rsi = await calculateRsi("BNBBUSD", "5m", 30, 14)
+    let rsi = await price.calculateRsi("BNBBUSD", "5m", 30, 14)
 
     // Create a new round object using the round data
     let round = new Round({

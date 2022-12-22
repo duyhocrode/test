@@ -1,6 +1,6 @@
 //short
 const Order = require("../../models/order.model.js")
-const getPrice = require("../../helper/price.js")
+const getPrice = require("../../helper/indicator.js")
 
 function simulateShortOrder(busdPerOrder, leverage) {
     // Create date instance
